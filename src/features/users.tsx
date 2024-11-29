@@ -1,4 +1,5 @@
 import React from "react";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import {
   Table,
   TableCaption,
@@ -33,27 +34,32 @@ export const UsersPage = () => {
 
   return (
     <div className="p-4">
-      <Table>
-        <TableCaption>Users</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Email</TableHead>
-            <TableHead>About</TableHead>
-            <TableHead>Address</TableHead>
-            <TableHead>Birthdate</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.email}>
-              <TableCell className="font-medium">{user.email}</TableCell>
-              <TableCell>{user.about}</TableCell>
-              <TableCell>{user.address}</TableCell>
-              <TableCell>{user.birthdate}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <Card className="w-full max-w-screen-lg">
+        <CardHeader>Users List</CardHeader>
+        <CardContent>
+          <Table>
+            <TableCaption>Users</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Email</TableHead>
+                <TableHead>About</TableHead>
+                <TableHead>Address</TableHead>
+                <TableHead>Birthdate</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.email}>
+                  <TableCell className="font-medium">{user.email}</TableCell>
+                  <TableCell>{user.about}</TableCell>
+                  <TableCell>{user.address}</TableCell>
+                  <TableCell>{user.birthdate}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 };

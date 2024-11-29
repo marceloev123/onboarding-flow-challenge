@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { OnboardingPage } from "~/features/onboarding";
+import { OnboardingPage } from "~/features/onboarding/onboarding";
 
 export default function Home() {
   return (
