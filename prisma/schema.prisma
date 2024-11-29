@@ -1,22 +1,75 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model Address {
+  id        String   @id @default(uuid()) @db.Uuid
+  street    String
+  city      String
+  zip       String
+  state     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User[]
 
-    @@index([name])
+  @@map("addresses")
 }
 
+model User {
+  id        String    @id @default(uuid()) @db.Uuid
+  email     String    @unique
+  password  String    @db.Char(12)
+  about     String?
+  addressId String    @db.Uuid
+  birthDate DateTime?
+  address   Address?  @relation(fields: [addressId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
+  @@index([email])
+  @@map("users")
+}
+
+enum FieldType {
+  ABOUT
+  ADDRESS
+  BIRTHDATE
+}
+
+model Field {
+  id        String    @id @default(uuid()) @db.Uuid
+  order     Int
+  type      FieldType
+  step      Step?      @relation(fields: [stepId], references: [id])
+  stepId    String?    @db.Uuid
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("fields")
+}
+
+model Step {
+  id             String           @id @default(uuid()) @db.Uuid
+  order          Int
+  fields         Field[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  OnboardingForm OnboardingForm[]
+
+  @@map("steps")
+}
+
+model OnboardingForm {
+  id        String   @id @default(uuid()) @db.Uuid
+  step      Step[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("onboarding_forms")
+}
