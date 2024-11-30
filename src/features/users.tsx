@@ -1,63 +1,65 @@
 import React from "react";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
+import { Skeleton } from "~/components/ui/skeleton";
 import {
   Table,
-  TableCaption,
   TableHeader,
   TableRow,
   TableHead,
   TableBody,
   TableCell,
 } from "~/components/ui/table";
+import { formatAddress, formatBirthDate } from "~/lib/utils";
+import { api } from "~/utils/api";
 
 export const UsersPage = () => {
-  const users = [
-    {
-      email: "johndoe@gmail.com",
-      about: "Software Engineer",
-      address: "1234 Elm Street",
-      birthDate: "01/01/1990",
-    },
-    {
-      email: "jane@gmail.com",
-      about: "Designer",
-      address: "1234 Elm Street",
-      birthDate: "01/01/1990",
-    },
-    {
-      email: "test@gmail.com",
-      about: "Tester",
-      address: "1234 Elm Street",
-      birthDate: "01/01/1990",
-    },
-  ];
+  const { data, isPending } = api.user.find.useQuery();
 
   return (
     <div className="p-4">
       <Card className="w-full max-w-screen-lg">
         <CardHeader>Users List</CardHeader>
         <CardContent>
-          <Table>
-            <TableCaption>Users</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Email</TableHead>
-                <TableHead>About</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Birthdate</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.email}>
-                  <TableCell className="font-medium">{user.email}</TableCell>
-                  <TableCell>{user.about}</TableCell>
-                  <TableCell>{user.address}</TableCell>
-                  <TableCell>{user.birthDate}</TableCell>
+          {isPending || !data ? (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-row gap-4">
+                <Skeleton className="h-[24px] w-full rounded-full" />
+                <Skeleton className="h-[24px] w-full rounded-full" />
+                <Skeleton className="h-[24px] w-full rounded-full" />
+                <Skeleton className="h-[24px] w-full rounded-full" />
+              </div>
+              <Skeleton className="h-[24px] w-full rounded-full" />
+              <Skeleton className="h-[24px] w-full rounded-full" />
+              <Skeleton className="h-[24px] w-full rounded-full" />
+              <Skeleton className="h-[24px] w-full rounded-full" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>About</TableHead>
+                  <TableHead>Address</TableHead>
+                  <TableHead>Birthdate</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {data.length === 0 ? (
+                  <TableRow>
+                    <TableCell className="text-left">No users found</TableCell>
+                  </TableRow>
+                ) : null}
+                {data.map((user) => (
+                  <TableRow key={user.email}>
+                    <TableCell className="font-medium">{user.email}</TableCell>
+                    <TableCell>{user.about ?? "No information"}</TableCell>
+                    <TableCell>{formatAddress(user.address)}</TableCell>
+                    <TableCell>{formatBirthDate(user.birthDate)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

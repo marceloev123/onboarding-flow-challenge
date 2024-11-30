@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { Loader2 } from "lucide-react";
 import { type FormValues, useOnboardingForm } from "./use-onboarding-form";
 import { Form } from "~/components/ui/form";
 import { FirstStep } from "./first-step";
@@ -35,7 +36,9 @@ export const OnboardingPage = () => {
   const form = useOnboardingForm();
   const { handleSubmit, trigger, reset, getValues } = form;
 
-  const upsertUserMutation = api.user.upsert.useMutation({
+  const utils = api.useUtils();
+
+  const { isPending, isSuccess, mutateAsync } = api.user.upsert.useMutation({
     onError: (error) => {
       console.error(error);
       toast({
@@ -43,6 +46,10 @@ export const OnboardingPage = () => {
         description: "Failed to save data",
         variant: "destructive",
       });
+    },
+    onSuccess: async () => {
+      // Invalidate user cache
+      await utils.user.find.refetch();
     },
   });
 
@@ -64,8 +71,8 @@ export const OnboardingPage = () => {
   const onSubmit = async (formData: FormValues) => {
     // Upsert user with all form data
     try {
-      await upsertUserMutation.mutateAsync({ ...formData });
-      if (upsertUserMutation.isSuccess) {
+      await mutateAsync({ ...formData });
+      if (isSuccess) {
         toast({
           title: "Success",
           description: "Data saved successfully",
@@ -99,7 +106,7 @@ export const OnboardingPage = () => {
       const currentValues = getValues();
       try {
         // Upsert user with current step data
-        await upsertUserMutation.mutateAsync({ ...currentValues });
+        await mutateAsync({ ...currentValues });
       } catch (error) {
         // Send error to error tracking service
         console.error(error);
@@ -149,7 +156,8 @@ export const OnboardingPage = () => {
               Previous
             </Button>
 
-            <Button onClick={onNext}>
+            <Button onClick={onNext} disabled={isPending}>
+              {isPending ? <Loader2 className="animate-spin" /> : null}
               {currentStep === steps.length - 1 ? "Submit" : "Next"}
             </Button>
           </CardFooter>
