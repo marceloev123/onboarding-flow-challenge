@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { AdminPage } from "~/features/admin";
+import { AdminPage } from "~/features/admin/admin";
 
 export default function Admin() {
   return (

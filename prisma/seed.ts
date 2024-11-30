@@ -24,7 +24,7 @@ async function main() {
 
   await prisma.onboardingForm.create({
     data: {
-      step: {
+      steps: {
         connect: [
           {
             id: firstStep.id,

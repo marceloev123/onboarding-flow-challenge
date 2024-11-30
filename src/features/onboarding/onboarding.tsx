@@ -59,10 +59,6 @@ export const OnboardingPage = () => {
     setCurrentStep((prev) => prev + 1);
   };
 
-  const handlePrevious = () => {
-    setCurrentStep((prev) => prev - 1);
-  };
-
   const onResetForm = () => {
     reset();
     setCurrentStep(0);
@@ -148,14 +144,6 @@ export const OnboardingPage = () => {
             {renderStep()}
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button
-              variant="outline"
-              disabled={currentStep < 1}
-              onClick={handlePrevious}
-            >
-              Previous
-            </Button>
-
             <Button onClick={onNext} disabled={isPending}>
               {isPending ? <Loader2 className="animate-spin" /> : null}
               {currentStep === steps.length - 1 ? "Submit" : "Next"}

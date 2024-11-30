@@ -31,11 +31,16 @@ export function DatePicker({
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {field.value ? format(field.value as Date, "PPP") : <span>Pick a date</span>}
+          {field.value ? (
+            format(field.value as Date, "PPP")
+          ) : (
+            <span>Pick a date</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
         <Calendar
+          captionLayout="dropdown"
           mode="single"
           selected={field.value as unknown as Date}
           onSelect={field.onChange}
