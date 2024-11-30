@@ -5,8 +5,13 @@ import { z } from "zod";
 const onboardingFormSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
-  address: z.string(),
-  birthdate: z.coerce.date(),
+  address: z.object({
+    street: z.string(),
+    city: z.string(),
+    zip: z.string(),
+    state: z.string(),
+  }),
+  birthDate: z.coerce.date(),
   about: z.string(),
 });
 
@@ -18,7 +23,7 @@ const onboardingFormResolver = zodResolver(onboardingFormSchema, undefined, {
 
 export const useOnboardingForm = () => {
   const form = useForm<FormValues>({
-    mode: "onBlur",
+    mode: "onSubmit",
     resolver: onboardingFormResolver,
     defaultValues: {
       email: "",

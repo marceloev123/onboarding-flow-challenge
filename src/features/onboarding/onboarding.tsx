@@ -9,18 +9,19 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { type FormValues, useOnboardingForm } from "./use-onboarding-form";
-import { type FieldName } from "react-hook-form";
 import { Form } from "~/components/ui/form";
 import { FirstStep } from "./first-step";
 import { Step } from "./step";
+import { api } from "~/utils/api";
+import { useToast } from "~/hooks/use-toast";
 
-const steps: Array<{ fields: FieldName<FormValues>[]; order: number }> = [
+const steps: Array<{ fields: (keyof FormValues)[]; order: number }> = [
   {
     fields: ["email", "password"],
     order: 1,
   },
   {
-    fields: ["address", "birthdate"],
+    fields: ["address", "birthDate"],
     order: 2,
   },
   {
@@ -31,6 +32,21 @@ const steps: Array<{ fields: FieldName<FormValues>[]; order: number }> = [
 
 export const OnboardingPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
+  const form = useOnboardingForm();
+  const { handleSubmit, trigger, reset, getValues } = form;
+
+  const upsertUserMutation = api.user.upsert.useMutation({
+    onError: (error) => {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to save data",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const { toast } = useToast();
 
   const handleNext = () => {
     setCurrentStep((prev) => prev + 1);
@@ -40,14 +56,32 @@ export const OnboardingPage = () => {
     setCurrentStep((prev) => prev - 1);
   };
 
-  const form = useOnboardingForm();
-
-  const { handleSubmit, trigger, reset } = form;
-
-  const onSubmit = async (formData: FormValues) => {
-    console.log(formData);
+  const onResetForm = () => {
     reset();
     setCurrentStep(0);
+  };
+
+  const onSubmit = async (formData: FormValues) => {
+    // Upsert user with all form data
+    try {
+      await upsertUserMutation.mutateAsync({ ...formData });
+      if (upsertUserMutation.isSuccess) {
+        toast({
+          title: "Success",
+          description: "Data saved successfully",
+          variant: "default",
+        });
+      }
+    } catch (error) {
+      // Send error to error tracking service
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to save data",
+        variant: "destructive",
+      });
+    }
+    onResetForm();
   };
 
   const onNext = async () => {
@@ -62,6 +96,20 @@ export const OnboardingPage = () => {
     if (currentStep === steps.length - 1) {
       await handleSubmit(onSubmit)();
     } else {
+      const currentValues = getValues();
+      try {
+        // Upsert user with current step data
+        await upsertUserMutation.mutateAsync({ ...currentValues });
+      } catch (error) {
+        // Send error to error tracking service
+        console.error(error);
+        toast({
+          title: "Error",
+          description: "Failed to save data",
+          variant: "destructive",
+        });
+      }
+
       handleNext();
     }
   };
@@ -86,7 +134,7 @@ export const OnboardingPage = () => {
       <Card className="w-full max-w-[480px]">
         <CardHeader>
           <CardTitle>Onboarding Users</CardTitle>
-          <CardDescription>Register your new user</CardDescription>
+          <CardDescription>Fill the fields below to begin</CardDescription>
         </CardHeader>
         <Form {...form}>
           <CardContent className="grid w-full items-center gap-4">
@@ -95,7 +143,7 @@ export const OnboardingPage = () => {
           <CardFooter className="flex justify-between">
             <Button
               variant="outline"
-              disabled={currentStep < 0}
+              disabled={currentStep < 1}
               onClick={handlePrevious}
             >
               Previous

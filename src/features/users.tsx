@@ -16,19 +16,19 @@ export const UsersPage = () => {
       email: "johndoe@gmail.com",
       about: "Software Engineer",
       address: "1234 Elm Street",
-      birthdate: "01/01/1990",
+      birthDate: "01/01/1990",
     },
     {
       email: "jane@gmail.com",
       about: "Designer",
       address: "1234 Elm Street",
-      birthdate: "01/01/1990",
+      birthDate: "01/01/1990",
     },
     {
       email: "test@gmail.com",
       about: "Tester",
       address: "1234 Elm Street",
-      birthdate: "01/01/1990",
+      birthDate: "01/01/1990",
     },
   ];
 
@@ -53,7 +53,7 @@ export const UsersPage = () => {
                   <TableCell className="font-medium">{user.email}</TableCell>
                   <TableCell>{user.about}</TableCell>
                   <TableCell>{user.address}</TableCell>
-                  <TableCell>{user.birthdate}</TableCell>
+                  <TableCell>{user.birthDate}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

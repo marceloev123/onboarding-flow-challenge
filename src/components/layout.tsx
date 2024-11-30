@@ -1,6 +1,8 @@
 import React from "react";
 import { AppSidebar } from "./app-sidebar";
 import { GeistSans } from "geist/font/sans";
+import { ThemeProvider } from "./theme-provider";
+import { Toaster } from "./ui/toaster";
 
 interface Props {
   children: React.ReactNode;
@@ -8,11 +10,19 @@ interface Props {
 
 export const Layout = ({ children }: Props) => {
   return (
-    <main
-      className={`${GeistSans.className} flex min-h-screen w-full flex-row`}
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem
+      disableTransitionOnChange
     >
-      <AppSidebar />
-      <div className="flex-1">{children}</div>
-    </main>
+      <main
+        className={`${GeistSans.className} flex min-h-screen w-full flex-row`}
+      >
+        <AppSidebar />
+        <div className="flex-1">{children}</div>
+        <Toaster />
+      </main>
+    </ThemeProvider>
   );
 };

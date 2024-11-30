@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  type FieldName,
-  type Control,
-  ControllerRenderProps,
-} from "react-hook-form";
+import { type Control, type ControllerRenderProps } from "react-hook-form";
 import { CardContent } from "~/components/ui/card";
 import {
   FormField,
@@ -12,24 +8,19 @@ import {
   FormControl,
   FormMessage,
 } from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
 import { type FormValues } from "./use-onboarding-form";
 import { Textarea } from "~/components/ui/textarea";
 import { DatePicker } from "~/components/date-picker";
+import { AddressInput } from "./address-input";
 
 interface Props {
-  fields: FieldName<FormValues>[] | undefined;
+  fields: (keyof FormValues)[] | undefined;
   control: Control<FormValues>;
 }
 
-type FieldType = "about" | "birthdate" | "address";
-
 export const Step = ({ fields, control }: Props) => {
-  const renderInput = (
-    field: ControllerRenderProps<FormValues>,
-    fieldType: FieldType,
-  ) => {
-    switch (fieldType) {
+  const renderInput = (field: ControllerRenderProps<FormValues>) => {
+    switch (field.name) {
       case "about":
         return (
           <Textarea
@@ -38,17 +29,10 @@ export const Step = ({ fields, control }: Props) => {
             value={field.value as string}
           />
         );
-      case "birthdate":
+      case "birthDate":
         return <DatePicker field={field} />;
       case "address":
-        return (
-          <Input
-            className="placeholder:capitalize"
-            placeholder="Address"
-            {...field}
-            value={field.value as string}
-          />
-        );
+        return <AddressInput control={control} />;
       default:
         return null;
     }
@@ -65,10 +49,8 @@ export const Step = ({ fields, control }: Props) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="capitalize">{itemField}</FormLabel>
-                <FormControl>
-                  {renderInput(field, itemField as FieldType)}
-                </FormControl>
-                <FormMessage />
+                <FormControl>{renderInput(field)}</FormControl>
+                {itemField === "address" ? null : <FormMessage />}
               </FormItem>
             )}
           />
