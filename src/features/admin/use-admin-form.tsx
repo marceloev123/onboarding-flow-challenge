@@ -37,9 +37,9 @@ export const useAdminForm = () => {
     defaultValues: {
       steps: [
         {
-          fields: [{}],
+          fields: [{ type: FieldType.ABOUT }],
         },
-        { fields: [{}] },
+        { fields: [{ type: FieldType.ADDRESS }] },
       ],
     },
   });

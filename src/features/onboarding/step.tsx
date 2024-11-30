@@ -1,5 +1,9 @@
 import React from "react";
-import { type Control, type ControllerRenderProps } from "react-hook-form";
+import {
+  FieldValues,
+  type Control,
+  type ControllerRenderProps,
+} from "react-hook-form";
 import { CardContent } from "~/components/ui/card";
 import {
   FormField,
@@ -25,8 +29,7 @@ export const Step = ({ fields, control }: Props) => {
         return (
           <Textarea
             placeholder="About"
-            {...field}
-            value={field.value as string}
+            {...(field as ControllerRenderProps<FieldValues["about"]>)}
           />
         );
       case "birthDate":

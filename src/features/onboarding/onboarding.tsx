@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -15,35 +15,29 @@ import { FirstStep } from "./first-step";
 import { Step } from "./step";
 import { api } from "~/utils/api";
 import { useToast } from "~/hooks/use-toast";
-
-const steps: Array<{ fields: (keyof FormValues)[]; order: number }> = [
-  {
-    fields: ["email", "password"],
-    order: 1,
-  },
-  {
-    fields: ["address", "birthDate"],
-    order: 2,
-  },
-  {
-    fields: ["about"],
-    order: 3,
-  },
-];
+import { FormSkeleton } from "./form-skeleton";
+import { getParsedStepsData } from "./get-parsed-steps-data";
 
 export const OnboardingPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [isSafeToReset, setIsSafeToReset] = useState(false);
+
   const form = useOnboardingForm();
-  const { handleSubmit, trigger, reset, getValues } = form;
+  const { trigger, reset, watch } = form;
+  const { toast } = useToast();
 
   const utils = api.useUtils();
 
-  const { isPending, isSuccess, mutateAsync } = api.user.upsert.useMutation({
+  const { isPending: isFormDatePending, data } = api.form.findOne.useQuery();
+
+  const steps = getParsedStepsData(data);
+
+  const { isPending, mutateAsync } = api.user.upsert.useMutation({
     onError: (error) => {
       console.error(error);
       toast({
         title: "Error",
-        description: "Failed to save data",
+        description: "Failed to save user data",
         variant: "destructive",
       });
     },
@@ -53,22 +47,23 @@ export const OnboardingPage = () => {
     },
   });
 
-  const { toast } = useToast();
-
   const handleNext = () => {
     setCurrentStep((prev) => prev + 1);
   };
 
   const onResetForm = () => {
-    reset();
+    setIsSafeToReset(false);
     setCurrentStep(0);
   };
 
   const onSubmit = async (formData: FormValues) => {
     // Upsert user with all form data
     try {
-      await mutateAsync({ ...formData });
-      if (isSuccess) {
+      const updatedUser = await mutateAsync({ ...formData });
+
+      if (updatedUser.id) {
+        setIsSafeToReset(true);
+
         toast({
           title: "Success",
           description: "Data saved successfully",
@@ -80,26 +75,36 @@ export const OnboardingPage = () => {
       console.error(error);
       toast({
         title: "Error",
-        description: "Failed to save data",
+        description: "Failed to save user data",
         variant: "destructive",
       });
     }
-    onResetForm();
   };
+
+  useEffect(() => {
+    if (isSafeToReset) {
+      reset({
+        email: "",
+        password: "",
+      });
+      onResetForm();
+    }
+  }, [isSafeToReset, reset]);
+
+  if (isFormDatePending || !steps) return <FormSkeleton />;
+
+  const currentValues = watch();
 
   const onNext = async () => {
     const currentFields = steps[currentStep]?.fields;
-
     if (!currentFields) return;
 
     const isValid = await trigger(currentFields, { shouldFocus: true });
-
     if (!isValid) return;
 
     if (currentStep === steps.length - 1) {
-      await handleSubmit(onSubmit)();
+      await onSubmit({ ...currentValues });
     } else {
-      const currentValues = getValues();
       try {
         // Upsert user with current step data
         await mutateAsync({ ...currentValues });
@@ -108,7 +113,7 @@ export const OnboardingPage = () => {
         console.error(error);
         toast({
           title: "Error",
-          description: "Failed to save data",
+          description: "Failed to save user data",
           variant: "destructive",
         });
       }
@@ -143,7 +148,7 @@ export const OnboardingPage = () => {
           <CardContent className="grid w-full items-center gap-4">
             {renderStep()}
           </CardContent>
-          <CardFooter className="flex justify-between">
+          <CardFooter className="flex justify-end">
             <Button onClick={onNext} disabled={isPending}>
               {isPending ? <Loader2 className="animate-spin" /> : null}
               {currentStep === steps.length - 1 ? "Submit" : "Next"}

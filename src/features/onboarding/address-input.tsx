@@ -50,7 +50,7 @@ export const AddressInput = ({ control }: Props) => {
           <FormItem>
             <FormLabel>Zip</FormLabel>
             <FormControl>
-              <Input placeholder="Zip" {...field} />
+              <Input placeholder="Zip" type="number" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

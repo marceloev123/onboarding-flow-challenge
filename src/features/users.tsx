@@ -52,7 +52,7 @@ export const UsersPage = () => {
                 {data.map((user) => (
                   <TableRow key={user.email}>
                     <TableCell className="font-medium">{user.email}</TableCell>
-                    <TableCell>{user.about ?? "No information"}</TableCell>
+                    <TableCell>{user.about ?? "-"}</TableCell>
                     <TableCell>{formatAddress(user.address)}</TableCell>
                     <TableCell>{formatBirthDate(user.birthDate)}</TableCell>
                   </TableRow>
